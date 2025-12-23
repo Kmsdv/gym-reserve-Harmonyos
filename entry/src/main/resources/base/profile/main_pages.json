@@ -1,0 +1,11 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/Register",
+    "pages/Success",
+    "pages/FacilityDetail",
+    "pages/MyReservations",
+    "pages/MyRatings",
+    "pages/UserInfoEdit"
+  ]
+}
