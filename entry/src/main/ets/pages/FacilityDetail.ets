@@ -61,6 +61,19 @@ export struct FacilityDetail {
     }
   }
 
+getFacilityImage(imageName: string | null): Resource {
+  if (imageName === 'gym') {
+    return $r('app.media.gym'); // 确保 media 目录下有 gym.png
+  }
+  if (imageName === 'soccer') {
+    return $r('app.media.soccer'); // 确保 media 目录下有 soccer.png
+  }
+  if (imageName === 'pool') {
+    return $r('app.media.pool'); // 确保 media 目录下有 pool.png
+  }
+  return $r('app.media.background'); // 默认图片
+}
+
   handleJoinActivity(activity: Activity) {
     const userId = AppStorage.get<number>('currentUserId');
     if (!userId) {
@@ -219,6 +232,13 @@ export struct FacilityDetail {
             Column() {
               // 2. 设施信息展示
               Column() {
+                Image(this.getFacilityImage(this.facility.image))
+                  .width('100%')
+                  .height(200)
+                  .objectFit(ImageFit.Cover)
+                  .borderRadius(10)
+                  .margin({ bottom: 15 })
+
                 Text(this.facility.facility_name || '未知设施')
                   .fontSize(24)
                   .fontWeight(FontWeight.Bold)

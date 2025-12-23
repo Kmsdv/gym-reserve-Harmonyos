@@ -107,6 +107,7 @@ export default class DBTools {
             rs.getString(rs.getColumnIndex('description')),
             rs.getString(rs.getColumnIndex('location')),
             rs.getLong(rs.getColumnIndex('capacity')),
+            rs.getString(rs.getColumnIndex('image')),
             rs.getString(rs.getColumnIndex('created_at'))
           )
           facilities.push(facility);

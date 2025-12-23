@@ -52,6 +52,7 @@ export default class EntryAbility extends UIAbility {
         description TEXT,
         location TEXT,
         capacity INTEGER DEFAULT 1,
+        image TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -129,6 +130,14 @@ export default class EntryAbility extends UIAbility {
       // 创建所有表
       store.executeSql(SQL_CREATE_USERS);
       store.executeSql(SQL_CREATE_FACILITIES);
+      // 尝试为旧数据库添加 image 字段 (如果字段已存在会报错，忽略即可)
+      store.executeSql("ALTER TABLE facilities ADD COLUMN image TEXT").catch((err: Error) => {});
+
+      // 强制更新现有数据的图片字段，确保旧数据也能显示图片
+      store.executeSql("UPDATE facilities SET image = 'gym' WHERE facility_name = '综合体育馆'").catch((err: Error) => {});
+      store.executeSql("UPDATE facilities SET image = 'soccer' WHERE facility_name = '露天足球场'").catch((err: Error) => {});
+      store.executeSql("UPDATE facilities SET image = 'pool' WHERE facility_name = '游泳馆'").catch((err: Error) => {});
+
       store.executeSql(SQL_CREATE_RATINGS);
       store.executeSql(SQL_CREATE_RESERVATIONS);
       store.executeSql(SQL_CREATE_USAGE_LOGS);
@@ -178,21 +187,24 @@ export default class EntryAbility extends UIAbility {
             'facility_type': '室内',
             'description': '多功能室内体育馆，可进行篮球、羽毛球比赛',
             'location': 'A区 101',
-            'capacity': 50
+            'capacity': 50,
+            'image': 'gym'
           }
           let f2: relationalStore.ValuesBucket = {
             'facility_name': '露天足球场',
             'facility_type': '室外',
             'description': '标准11人制足球场，草皮良好',
             'location': 'B区 201',
-            'capacity': 22
+            'capacity': 22,
+            'image': 'soccer'
           }
           let f3: relationalStore.ValuesBucket = {
             'facility_name': '游泳馆',
             'facility_type': '室内',
             'description': '恒温泳池，50米标准赛道',
             'location': 'C区 301',
-            'capacity': 30
+            'capacity': 30,
+            'image': 'pool'
           }
           let facilities: relationalStore.ValuesBucket[] = [f1, f2, f3];
           store.batchInsert('facilities', facilities, (err, rowId) => {

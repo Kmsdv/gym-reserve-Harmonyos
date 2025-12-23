@@ -114,6 +114,19 @@ struct Success {
     });
   }
 
+getFacilityImage(imageName: string | null): Resource {
+  if (imageName === 'gym') {
+    return $r('app.media.gym'); // 确保 media 目录下有 gym.png
+  }
+  if (imageName === 'soccer') {
+    return $r('app.media.soccer'); // 确保 media 目录下有 soccer.png
+  }
+  if (imageName === 'pool') {
+    return $r('app.media.pool'); // 确保 media 目录下有 pool.png
+  }
+  return $r('app.media.background'); // 默认图片
+}
+
   @Builder TabBuilder(title: string, targetIndex: number, selectedImg: Resource, normalImg: Resource) {
     Column() {
       Text(targetIndex === 0 ? '🔥' : (targetIndex === 1 ? '🏟️' : '👤'))
@@ -157,7 +170,7 @@ struct Success {
                 ListItem() {
                   Column() {
                     Stack({ alignContent: Alignment.TopEnd }) {
-                      Image($r('app.media.background')) // 使用默认背景图
+                      Image(this.getFacilityImage(item.image)) // 使用动态图片
                         .width('100%')
                         .height(150)
                         .borderRadius({ topLeft: 10, topRight: 10 })
@@ -326,7 +339,7 @@ struct Success {
               ForEach(this.facilities, (item: Facility) => {
                 ListItem() {
                   Row() {
-                    Image($r('app.media.startIcon')) // 占位图
+                    Image(this.getFacilityImage(item.image)) // 使用动态图片
                       .width(60)
                       .height(60)
                       .borderRadius(8)
