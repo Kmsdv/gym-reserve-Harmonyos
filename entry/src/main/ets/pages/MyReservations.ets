@@ -195,48 +195,58 @@ struct MyReservations {
     Column() {
       // 标题栏
       Row() {
-        Text('<')
-          .fontSize(24)
-          .padding({ right: 16 })
+        Text('🔙')
+          .fontSize(20)
+          .margin({ right: 5 })
           .onClick(() => {
             router.back();
           })
         Text('我的预约')
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
+          .margin({ left: 10 })
       }
       .width('100%')
-      .padding(16)
+      .padding(15)
       .backgroundColor(Color.White)
+      .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
 
       if (this.isLoading) {
         LoadingProgress().width(50).height(50).margin({ top: 50 })
       } else if (this.reservations.length === 0) {
         Column() {
+          Text('📭')
+            .fontSize(50)
+            .margin({ bottom: 10 })
           Text('暂无预约记录')
             .fontSize(16)
             .fontColor(Color.Gray)
-            .margin({ top: 50 })
-        }.width('100%')
+        }
+        .width('100%')
+        .margin({ top: 100 })
+        .alignItems(HorizontalAlign.Center)
       } else {
         List({ space: 10 }) {
           ForEach(this.reservations, (item: Reservation) => {
             ListItem() {
               Column() {
                 Row() {
-                  Text(item.facility_name || '未知设施')
+                  Text('🏟️ ' + (item.facility_name || '未知设施'))
                     .fontSize(18)
                     .fontWeight(FontWeight.Bold)
                   Blank()
                   Text(this.getDisplayStatus(item))
-                    .fontColor(this.getStatusColor(this.getDisplayStatus(item)))
-                    .fontSize(14)
+                    .fontColor(Color.White)
+                    .fontSize(12)
+                    .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+                    .backgroundColor(this.getStatusColor(this.getDisplayStatus(item)))
+                    .borderRadius(10)
                 }
                 .width('100%')
-                .margin({ bottom: 8 })
+                .margin({ bottom: 12 })
 
                 Row() {
-                  Text('开始时间：')
+                  Text('🕒 开始：')
                     .fontSize(14)
                     .fontColor(Color.Gray)
                   Text(this.formatDate(item.start_time))
@@ -246,7 +256,7 @@ struct MyReservations {
                 .margin({ bottom: 4 })
 
                 Row() {
-                  Text('结束时间：')
+                  Text('🕒 结束：')
                     .fontSize(14)
                     .fontColor(Color.Gray)
                   Text(this.formatDate(item.end_time))
@@ -257,7 +267,8 @@ struct MyReservations {
               .width('100%')
               .padding(16)
               .backgroundColor(Color.White)
-              .borderRadius(8)
+              .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .onClick(() => {
                 this.handleItemClick(item);
               })
@@ -271,6 +282,6 @@ struct MyReservations {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor('#F5F7FA')
   }
 }

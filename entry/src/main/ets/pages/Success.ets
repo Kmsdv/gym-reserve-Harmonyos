@@ -116,9 +116,11 @@ struct Success {
 
   @Builder TabBuilder(title: string, targetIndex: number, selectedImg: Resource, normalImg: Resource) {
     Column() {
-      Image(this.currentIndex === targetIndex ? selectedImg : normalImg)
-        .size({ width: 25, height: 25 })
+      Text(targetIndex === 0 ? '🔥' : (targetIndex === 1 ? '🏟️' : '👤'))
+        .fontSize(24)
+        .margin({ bottom: 4 })
       Text(title)
+        .fontSize(10)
         .fontColor(this.currentIndex === targetIndex ? '#1698CE' : '#6B6B6B')
     }
     .width('100%')
@@ -139,35 +141,43 @@ struct Success {
             List({ space: 15 }) {
               // 推荐设施标题
               ListItem() {
-                Text(this.recommendationTitle)
-                  .fontSize(24)
-                  .fontWeight(FontWeight.Bold)
-                  .margin({ top: 20, bottom: 5, left: 20 })
+                Row() {
+                  Text('✨')
+                    .fontSize(24)
+                    .margin({ right: 10 })
+                  Text(this.recommendationTitle)
+                    .fontSize(24)
+                    .fontWeight(FontWeight.Bold)
+                }
+                .margin({ top: 20, bottom: 5, left: 20 })
               }
 
               // 推荐设施列表
               ForEach(this.recommendations, (item: Facility) => {
                 ListItem() {
                   Column() {
-                    Image($r('app.media.background')) // 使用默认背景图
-                      .width('100%')
-                      .height(150)
-                      .borderRadius({ topLeft: 10, topRight: 10 })
-                      .backgroundColor(Color.Gray)
-                      .objectFit(ImageFit.Cover)
+                    Stack({ alignContent: Alignment.TopEnd }) {
+                      Image($r('app.media.background')) // 使用默认背景图
+                        .width('100%')
+                        .height(150)
+                        .borderRadius({ topLeft: 10, topRight: 10 })
+                        .backgroundColor(Color.Gray)
+                        .objectFit(ImageFit.Cover)
+                      
+                      Text(item.facility_type)
+                        .fontSize(12)
+                        .fontColor(Color.White)
+                        .backgroundColor('#1698CE')
+                        .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+                        .borderRadius({ topLeft: 0, topRight: 10, bottomLeft: 10, bottomRight: 0 })
+                        .margin({ top: 0, right: 0 })
+                    }
                     
                     Column() {
                       Row() {
                         Text(item.facility_name)
                           .fontSize(18)
                           .fontWeight(FontWeight.Bold)
-                        Blank()
-                        Text(item.facility_type)
-                          .fontSize(12)
-                          .fontColor(Color.White)
-                          .backgroundColor('#1698CE')
-                          .padding({ left: 8, right: 8, top: 4, bottom: 4 })
-                          .borderRadius(10)
                       }
                       .width('100%')
                       .alignItems(VerticalAlign.Center)
@@ -203,10 +213,15 @@ struct Success {
               // 推荐活动标题
               if (this.recommendedActivities.length > 0) {
                 ListItem() {
-                  Text('热门活动')
-                    .fontSize(24)
-                    .fontWeight(FontWeight.Bold)
-                    .margin({ top: 20, bottom: 5, left: 20 })
+                  Row() {
+                    Text('📅')
+                      .fontSize(24)
+                      .margin({ right: 10 })
+                    Text('热门活动')
+                      .fontSize(24)
+                      .fontWeight(FontWeight.Bold)
+                  }
+                  .margin({ top: 20, bottom: 5, left: 20 })
                 }
 
                 // 推荐活动列表
@@ -229,7 +244,10 @@ struct Success {
                       .margin({ bottom: 8 })
 
                       Row() {
-                        Text('地点: ' + (item.facility_name || '未知地点'))
+                        Text('📍')
+                          .fontSize(14)
+                          .margin({ right: 5 })
+                        Text((item.facility_name || '未知地点'))
                           .fontSize(14)
                           .fontColor(Color.Gray)
                       }
@@ -237,7 +255,10 @@ struct Success {
                       .margin({ bottom: 5 })
 
                       Row() {
-                        Text('时间: ' + item.start_time)
+                        Text('🕒')
+                          .fontSize(14)
+                          .margin({ right: 5 })
+                        Text(item.start_time)
                           .fontSize(14)
                           .fontColor(Color.Gray)
                       }
@@ -290,31 +311,50 @@ struct Success {
         // 2. 设施页面
         TabContent() {
           Column() {
-            Text('设施列表')
-              .fontSize(24)
-              .fontWeight(FontWeight.Bold)
-              .margin({ top: 20, bottom: 10 })
+            Row() {
+              Text('🏟️')
+                .fontSize(24)
+                .margin({ right: 10 })
+              Text('设施列表')
+                .fontSize(24)
+                .fontWeight(FontWeight.Bold)
+            }
+            .width('100%')
+            .padding({ left: 20, top: 20, bottom: 10 })
 
             List({ space: 10 }) {
               ForEach(this.facilities, (item: Facility) => {
                 ListItem() {
                   Row() {
+                    Image($r('app.media.startIcon')) // 占位图
+                      .width(60)
+                      .height(60)
+                      .borderRadius(8)
+                      .backgroundColor('#EEE')
+                      .margin({ right: 15 })
+
                     Column() {
                       Text(item.facility_name)
                         .fontSize(18)
                         .fontWeight(FontWeight.Bold)
-                      Text(item.location)
-                        .fontSize(14)
-                        .fontColor(Color.Gray)
-                        .margin({ top: 5 })
+                      
+                      Row() {
+                        Text('📍')
+                          .fontSize(12)
+                          .margin({ right: 4 })
+                        Text(item.location)
+                          .fontSize(14)
+                          .fontColor(Color.Gray)
+                      }
+                      .margin({ top: 5 })
                     }
                     .alignItems(HorizontalAlign.Start)
                     .layoutWeight(1)
 
                     Text(item.facility_type)
-                      .fontSize(14)
-                      .fontColor(Color.Blue)
-                      .padding({ left: 10, right: 10, top: 5, bottom: 5 })
+                      .fontSize(12)
+                      .fontColor('#1698CE')
+                      .padding({ left: 10, right: 10, top: 4, bottom: 4 })
                       .backgroundColor('#E6F7FF')
                       .borderRadius(15)
                   }
@@ -348,9 +388,12 @@ struct Success {
         TabContent() {
           Column() {
             Row() {
-              Image($r('app.media.startIcon'))
+              Text('👤') // 头像占位
+                .fontSize(40)
                 .width(60)
                 .height(60)
+                .textAlign(TextAlign.Center)
+                .backgroundColor('#EEE')
                 .borderRadius(30)
                 .margin({ right: 15 })
               Column() {
@@ -377,9 +420,14 @@ struct Success {
             List() {
               ListItem() {
                 Row() {
+                  Text('📅')
+                    .fontSize(20)
+                    .margin({ right: 10 })
                   Text('我的预约')
+                    .fontSize(16)
                   Blank()
                   Text('>')
+                    .fontColor(Color.Gray)
                 }
                 .width('100%')
                 .padding(15)
@@ -391,9 +439,14 @@ struct Success {
               
               ListItem() {
                 Row() {
+                  Text('⭐')
+                    .fontSize(20)
+                    .margin({ right: 10 })
                   Text('评价记录')
+                    .fontSize(16)
                   Blank()
                   Text('>')
+                    .fontColor(Color.Gray)
                 }
                 .width('100%')
                 .padding(15)
@@ -406,7 +459,11 @@ struct Success {
 
               ListItem() {
                 Row() {
+                  Text('🚪')
+                    .fontSize(20)
+                    .margin({ right: 10 })
                   Text('退出登录')
+                    .fontSize(16)
                     .fontColor(Color.Red)
                 }
                 .width('100%')

@@ -197,16 +197,16 @@ export struct FacilityDetail {
     Column() {
       // 1. 顶部导航栏
       Row() {
-        Text('< 返回')
-          .fontSize(18)
-          .fontColor('#1698CE')
+        Text('🔙')
+          .fontSize(20)
+          .margin({ right: 5 })
           .onClick(() => {
             router.back();
           })
         Text('设施详情')
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
-          .margin({ left: 20 })
+          .margin({ left: 10 })
       }
       .width('100%')
       .padding(15)
@@ -232,15 +232,20 @@ export struct FacilityDetail {
                     .padding({ left: 8, right: 8, top: 4, bottom: 4 })
                     .borderRadius(4)
                   
-                  Text(this.facility.location)
-                    .fontSize(14)
-                    .fontColor(Color.Gray)
-                    .margin({ left: 10 })
+                  Row() {
+                    Text('📍')
+                      .fontSize(14)
+                      .margin({ right: 4 })
+                    Text(this.facility.location)
+                      .fontSize(14)
+                      .fontColor(Color.Gray)
+                  }
+                  .margin({ left: 10 })
                 }
                 .width('100%')
                 .margin({ bottom: 15 })
 
-                Text('设施描述：')
+                Text('📝 设施描述：')
                   .fontSize(16)
                   .fontWeight(FontWeight.Bold)
                   .margin({ bottom: 5 })
@@ -253,13 +258,14 @@ export struct FacilityDetail {
               .padding(20)
               .backgroundColor(Color.White)
               .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .margin({ top: 15, bottom: 15 })
               .alignItems(HorizontalAlign.Start)
 
               // 新增：设施活动展示
               Column() {
                 Row() {
-                  Text('热门活动')
+                  Text('📅 热门活动')
                     .fontSize(18)
                     .fontWeight(FontWeight.Bold)
                   Blank()
@@ -300,6 +306,7 @@ export struct FacilityDetail {
                                 Button('报名')
                                 .fontSize(12)
                                 .height(24)
+                                .backgroundColor('#52C41A')
                                 .onClick(() => this.handleJoinActivity(item))
                             } else {
                                 Text(item.status)
@@ -310,7 +317,7 @@ export struct FacilityDetail {
                           .width('100%')
                           .margin({ bottom: 5 })
 
-                          Text(`时间: ${item.start_time}`)
+                          Text(`🕒 时间: ${item.start_time}`)
                             .fontSize(14)
                             .fontColor(Color.Gray)
                             .margin({ bottom: 5 })
@@ -334,12 +341,13 @@ export struct FacilityDetail {
               .padding(20)
               .backgroundColor(Color.White)
               .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .margin({ bottom: 15 })
 
               // 新增：我的预约记录展示
               if (this.myReservations.length > 0) {
                 Column() {
-                  Text('我的预约记录')
+                  Text('📋 我的预约记录')
                     .fontSize(18)
                     .fontWeight(FontWeight.Bold)
                     .margin({ bottom: 10 })
@@ -370,12 +378,13 @@ export struct FacilityDetail {
                 .padding(20)
                 .backgroundColor(Color.White)
                 .borderRadius(10)
+                .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
                 .margin({ bottom: 15 })
               }
 
               // 新增：用户评价展示
               Column() {
-                Text('用户评价')
+                Text('💬 用户评价')
                   .fontSize(18)
                   .fontWeight(FontWeight.Bold)
                   .margin({ bottom: 10 })
@@ -421,11 +430,12 @@ export struct FacilityDetail {
               .padding(20)
               .backgroundColor(Color.White)
               .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .margin({ bottom: 15 })
 
               // 3. 预约时间选择
               Column() {
-                Text('预约时间')
+                Text('⏰ 预约时间')
                   .fontSize(18)
                   .fontWeight(FontWeight.Bold)
                   .margin({ bottom: 15 })
@@ -462,6 +472,7 @@ export struct FacilityDetail {
               .padding(20)
               .backgroundColor(Color.White)
               .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
             }
             .width('100%')
             .padding({ left: 15, right: 15 })
@@ -475,6 +486,9 @@ export struct FacilityDetail {
             .width('90%')
             .height(50)
             .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .backgroundColor('#1698CE')
+            .shadow({ radius: 5, color: '#4F1698CE', offsetY: 3 })
             .margin({ top: 10, bottom: 20 })
             .onClick(() => {
               this.handleReservation();

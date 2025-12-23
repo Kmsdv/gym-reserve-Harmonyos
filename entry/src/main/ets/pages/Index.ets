@@ -5,7 +5,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 @Entry
 @Component
 struct Index {
-  @State message: string = '用户登录';
+  @State message: string = '欢迎回来';
   @State username: string = 'bean';
   @State password: string = '1234';
 
@@ -15,57 +15,107 @@ struct Index {
   }
 
   build() {
-    Column() { //自动为Flex
-      Text(this.message).fontSize(26).fontWeight(FontWeight.Bold)
-      Row() {
-        Text('用户名：').fontSize(20).fontColor(Color.Blue)
-        TextInput({ text: this.username }).fontSize(20).width(200)
-          .onChange((value)=>{//赋新值
-            this.username=value;
-          })
-      }.width('80%').height(60)
+    Column() {
+      // Logo区域
+      Column() {
+        Text('🏟️')
+          .fontSize(80)
+          .margin({ bottom: 20 })
+        Text('体育场馆预约')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#333')
+        Text('Sports Venue Booking')
+          .fontSize(14)
+          .fontColor('#999')
+          .margin({ top: 5 })
+      }
+      .margin({ top: 80, bottom: 50 })
 
-      Row() {
-        Text('密').fontSize(20).fontColor(Color.Blue).margin({ right: 20 })
-        Text('码：').fontSize(20).fontColor(Color.Blue)
-        //密码框
-        TextInput({ text: this.password }).fontSize(20).width(200).type(InputType.Password)
-          .onChange((value)=>{//赋新值
-            this.password=value;
-          })
-      }.width('80%').height(60)
+      // 输入框区域
+      Column({ space: 20 }) {
+        // 用户名输入框
+        Row() {
+          Text('👤')
+            .fontSize(20)
+            .margin({ right: 10 })
+          TextInput({ placeholder: '请输入用户名', text: this.username })
+            .fontSize(16)
+            .layoutWeight(1)
+            .backgroundColor(Color.Transparent)
+            .onChange((value) => {
+              this.username = value;
+            })
+        }
+        .padding({ left: 15, right: 15 })
+        .height(50)
+        .backgroundColor(Color.White)
+        .borderRadius(25)
+        .shadow({ radius: 5, color: '#1F000000', offsetY: 2 })
 
+        // 密码输入框
+        Row() {
+          Text('🔒')
+            .fontSize(20)
+            .margin({ right: 10 })
+          TextInput({ placeholder: '请输入密码', text: this.password })
+            .fontSize(16)
+            .layoutWeight(1)
+            .type(InputType.Password)
+            .backgroundColor(Color.Transparent)
+            .onChange((value) => {
+              this.password = value;
+            })
+        }
+        .padding({ left: 15, right: 15 })
+        .height(50)
+        .backgroundColor(Color.White)
+        .borderRadius(25)
+        .shadow({ radius: 5, color: '#1F000000', offsetY: 2 })
+      }
+      .width('85%')
+
+      // 注册链接
       Row() {
-        Text('去注册').margin({ right: 50 }).fontColor(Color.Brown)
-          .onClick(()=>{
-            router.pushUrl({url:'pages/Register'})
+        Text('还没有账号？')
+          .fontColor('#666')
+          .fontSize(14)
+        Text('立即注册')
+          .fontColor('#1698CE')
+          .fontSize(14)
+          .fontWeight(FontWeight.Bold)
+          .onClick(() => {
+            router.pushUrl({ url: 'pages/Register' })
           })
-      }.width('100%')
+      }
+      .width('85%')
       .justifyContent(FlexAlign.End)
+      .margin({ top: 15, bottom: 40 })
 
-      // 用户登录
-      Row() {
-        Button('登 录').onClick(() => {
-          DBTools.queryByUser(this.username,this.password).then((data)=>{
-            if(data>0){
-              // 修改点：登录成功，将返回的用户ID (data) 存储到 AppStorage
-              // 这样在 FacilityDetail.ets 中就可以通过 AppStorage.get('currentUserId') 获取了
+      // 登录按钮
+      Button('登 录')
+        .width('85%')
+        .height(50)
+        .fontSize(18)
+        .fontWeight(FontWeight.Bold)
+        .backgroundColor('#1698CE')
+        .shadow({ radius: 5, color: '#4F1698CE', offsetY: 3 })
+        .onClick(() => {
+          DBTools.queryByUser(this.username, this.password).then((data) => {
+            if (data > 0) {
               AppStorage.setOrCreate('currentUserId', data);
-
-              //AlertDialog.show({message:'正常登录：'+data})
-              router.pushUrl({url:'pages/Success'})
-            }else{
-              AlertDialog.show({message:'用户名或密码有误'})
+              router.pushUrl({ url: 'pages/Success' })
+            } else {
+              AlertDialog.show({ message: '用户名或密码有误' })
             }
-          }).catch((err:BusinessError)=>{
+          }).catch((err: BusinessError) => {
             console.log(err.message);
           })
         });
-      }
 
-    }.width('100%')
+    }
+    .width('100%')
     .height('100%')
-    .backgroundColor('#eee')
-    .justifyContent(FlexAlign.Center)
+    .backgroundColor('#F5F7FA')
   }
 }

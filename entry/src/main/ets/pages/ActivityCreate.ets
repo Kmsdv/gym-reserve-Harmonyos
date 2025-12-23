@@ -94,14 +94,14 @@ struct ActivityCreate {
     Column() {
       // Header
       Row() {
-        Text('< 返回')
-          .fontSize(18)
-          .fontColor('#1698CE')
+        Text('🔙')
+          .fontSize(20)
+          .margin({ right: 5 })
           .onClick(() => router.back())
         Text('发起活动')
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
-          .margin({ left: 20 })
+          .margin({ left: 10 })
       }
       .width('100%')
       .padding(15)
@@ -111,14 +111,19 @@ struct ActivityCreate {
       Scroll() {
         Column() {
           if (this.facility) {
-            Text('设施: ' + this.facility.facility_name)
-              .fontSize(16)
-              .fontColor(Color.Gray)
-              .margin({ bottom: 20, top: 20 })
-              .width('100%')
+            Row() {
+              Text('🏟️')
+                .fontSize(18)
+                .margin({ right: 8 })
+              Text('设施: ' + this.facility.facility_name)
+                .fontSize(16)
+                .fontColor(Color.Gray)
+            }
+            .margin({ bottom: 20, top: 20 })
+            .width('100%')
           }
 
-          Text('活动标题')
+          Text('📝 活动标题')
             .fontSize(16)
             .fontWeight(FontWeight.Bold)
             .width('100%')
@@ -130,8 +135,10 @@ struct ActivityCreate {
             .height(50)
             .margin({ bottom: 20 })
             .backgroundColor(Color.White)
+            .borderRadius(10)
+            .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
 
-          Text('活动描述')
+          Text('📄 活动描述')
             .fontSize(16)
             .fontWeight(FontWeight.Bold)
             .width('100%')
@@ -143,8 +150,10 @@ struct ActivityCreate {
             .height(100)
             .margin({ bottom: 20 })
             .backgroundColor(Color.White)
+            .borderRadius(10)
+            .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
 
-          Text('时间安排')
+          Text('⏰ 时间安排')
             .fontSize(16)
             .fontWeight(FontWeight.Bold)
             .width('100%')
@@ -160,7 +169,8 @@ struct ActivityCreate {
           .width('100%')
           .padding(15)
           .backgroundColor(Color.White)
-          .borderRadius(5)
+          .borderRadius(10)
+          .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
           .margin({ bottom: 10 })
 
           Row() {
@@ -173,12 +183,17 @@ struct ActivityCreate {
           .width('100%')
           .padding(15)
           .backgroundColor(Color.White)
-          .borderRadius(5)
+          .borderRadius(10)
+          .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
           .margin({ bottom: 30 })
 
-          Button('创建活动')
+          Button('✨ 创建活动')
             .width('100%')
             .height(50)
+            .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .backgroundColor('#1698CE')
+            .shadow({ radius: 5, color: '#4F1698CE', offsetY: 3 })
             .onClick(() => this.createActivity())
         }
         .padding(20)
@@ -186,6 +201,6 @@ struct ActivityCreate {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F5')
+    .backgroundColor('#F5F7FA')
   }
 }

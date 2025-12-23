@@ -157,36 +157,43 @@ struct MyRatings {
     Column() {
       // 标题栏
       Row() {
-        Text('<')
-          .fontSize(24)
-          .padding({ right: 16 })
+        Text('🔙')
+          .fontSize(20)
+          .margin({ right: 5 })
           .onClick(() => {
             router.back();
           })
         Text('我的评价')
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
+          .margin({ left: 10 })
       }
       .width('100%')
-      .padding(16)
+      .padding(15)
       .backgroundColor(Color.White)
+      .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
 
       if (this.isLoading) {
         LoadingProgress().width(50).height(50).margin({ top: 50 })
       } else if (this.ratings.length === 0) {
         Column() {
+          Text('📭')
+            .fontSize(50)
+            .margin({ bottom: 10 })
           Text('暂无评价记录')
             .fontSize(16)
             .fontColor(Color.Gray)
-            .margin({ top: 50 })
-        }.width('100%')
+        }
+        .width('100%')
+        .margin({ top: 100 })
+        .alignItems(HorizontalAlign.Center)
       } else {
         List({ space: 10 }) {
           ForEach(this.ratings, (item: FacilityRating) => {
             ListItem() {
               Column() {
                 Row() {
-                  Text(item.facility_name || '未知设施')
+                  Text('🏟️ ' + (item.facility_name || '未知设施'))
                     .fontSize(18)
                     .fontWeight(FontWeight.Bold)
                   Blank()
@@ -213,7 +220,8 @@ struct MyRatings {
               .width('100%')
               .padding(16)
               .backgroundColor(Color.White)
-              .borderRadius(8)
+              .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .onClick(() => {
                 this.handleItemClick(item);
               })
@@ -227,6 +235,6 @@ struct MyRatings {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor('#F5F7FA')
   }
 }

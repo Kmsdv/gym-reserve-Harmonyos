@@ -61,16 +61,16 @@ struct UserInfoEdit {
     Column() {
       // 标题栏
       Row() {
-        Text('< 返回')
-          .fontSize(18)
-          .fontColor('#1698CE')
+        Text('🔙')
+          .fontSize(20)
+          .margin({ right: 5 })
           .onClick(() => {
             router.back();
           })
         Text('编辑个人信息')
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
-          .margin({ left: 20 })
+          .margin({ left: 10 })
       }
       .width('100%')
       .padding(15)
@@ -84,7 +84,7 @@ struct UserInfoEdit {
             
             // 用户名
             Column() {
-              Text('用户名')
+              Text('👤 用户名')
                 .fontSize(14)
                 .fontColor(Color.Gray)
                 .margin({ bottom: 8 })
@@ -92,18 +92,22 @@ struct UserInfoEdit {
                 .height(45)
                 .enabled(false) // 设置为不可编辑
                 .backgroundColor('#F5F5F5') // 设置背景色表示只读
+                .borderRadius(10)
             }
             .alignItems(HorizontalAlign.Start)
             .width('100%')
 
             // 昵称
             Column() {
-              Text('昵称')
+              Text('🏷️ 昵称')
                 .fontSize(14)
                 .fontColor(Color.Gray)
                 .margin({ bottom: 8 })
               TextInput({ text: this.fullName, placeholder: '请输入昵称' })
                 .height(45)
+                .borderRadius(10)
+                .backgroundColor(Color.White)
+                .border({ width: 1, color: '#EEE' })
                 .onChange((value) => {
                   this.fullName = value;
                 })
@@ -113,13 +117,16 @@ struct UserInfoEdit {
 
             // 电话号码
             Column() {
-              Text('电话号码')
+              Text('📱 电话号码')
                 .fontSize(14)
                 .fontColor(Color.Gray)
                 .margin({ bottom: 8 })
               TextInput({ text: this.phone, placeholder: '请输入电话号码' })
                 .height(45)
                 .type(InputType.PhoneNumber)
+                .borderRadius(10)
+                .backgroundColor(Color.White)
+                .border({ width: 1, color: '#EEE' })
                 .onChange((value) => {
                   this.phone = value;
                 })
@@ -129,13 +136,16 @@ struct UserInfoEdit {
 
             // 邮箱
             Column() {
-              Text('电子邮箱')
+              Text('📧 电子邮箱')
                 .fontSize(14)
                 .fontColor(Color.Gray)
                 .margin({ bottom: 8 })
               TextInput({ text: this.email, placeholder: '请输入电子邮箱' })
                 .height(45)
                 .type(InputType.Email)
+                .borderRadius(10)
+                .backgroundColor(Color.White)
+                .border({ width: 1, color: '#EEE' })
                 .onChange((value) => {
                   this.email = value;
                 })
@@ -147,13 +157,17 @@ struct UserInfoEdit {
           .padding(20)
           .backgroundColor(Color.White)
           .borderRadius(10)
+          .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
           .margin({ top: 20 })
 
           // 保存按钮
-          Button('保存修改')
+          Button('💾 保存修改')
             .width('90%')
             .height(50)
             .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .backgroundColor('#1698CE')
+            .shadow({ radius: 5, color: '#4F1698CE', offsetY: 3 })
             .margin({ top: 40 })
             .onClick(() => {
               this.saveUserInfo();
@@ -168,6 +182,6 @@ struct UserInfoEdit {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F5')
+    .backgroundColor('#F5F7FA')
   }
 }
