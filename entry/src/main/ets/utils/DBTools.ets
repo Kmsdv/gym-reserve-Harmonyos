@@ -505,4 +505,21 @@ export default class DBTools {
       })
     })
   }
+
+  // 24. 查询用户已加入的活动ID列表
+  static queryJoinedActivityIds(userId: number): Promise<Array<number>> {
+    const sql = `SELECT activity_id FROM activity_participants WHERE user_id = ?`;
+    return new Promise<Array<number>>((resolve, reject) => {
+      DBTools.getStore().querySql(sql, [userId]).then((rs) => {
+        let ids = Array<number>();
+        while (rs.goToNextRow()) {
+          ids.push(rs.getLong(rs.getColumnIndex('activity_id')));
+        }
+        rs.close();
+        resolve(ids);
+      }).catch((err: BusinessError) => {
+        reject(err);
+      })
+    })
+  }
 }

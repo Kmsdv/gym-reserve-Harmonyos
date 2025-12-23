@@ -7,15 +7,110 @@ import Reservation from '../model/Reservation';
 import FacilityRating from '../model/FacilityRating';
 import Activity from '../model/Activity';
 
+@CustomDialog
+struct ReservationDialog {
+  controller: CustomDialogController
+  @State startTime: Date = new Date()
+  @State endTime: Date = new Date(new Date().getTime() + 60 * 60 * 1000)
+  onConfirm: (startTime: Date, endTime: Date) => void = () => {}
+
+  formatDate(date: Date): string {
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  selectDateTime(isStart: boolean) {
+    DatePickerDialog.show({
+      start: new Date(),
+      end: new Date("2030-12-31"),
+      selected: isStart ? this.startTime : this.endTime,
+      onAccept: (value: DatePickerResult) => {
+        TimePickerDialog.show({
+          selected: isStart ? this.startTime : this.endTime,
+          useMilitaryTime: true,
+          onAccept: (timeValue: TimePickerResult) => {
+            const newDate = new Date(value.year!, value.month!, value.day!, timeValue.hour, timeValue.minute);
+            if (isStart) {
+              this.startTime = newDate;
+            } else {
+              this.endTime = newDate;
+            }
+          }
+        })
+      }
+    })
+  }
+
+  build() {
+    Column() {
+      Text('⏰ 预约时间选择')
+        .fontSize(18)
+        .fontWeight(FontWeight.Bold)
+        .margin({ bottom: 15 })
+
+      Row() {
+        Text('开始时间')
+          .width(80)
+        Text(this.formatDate(this.startTime))
+          .fontSize(16)
+          .fontColor('#1698CE')
+          .layoutWeight(1)
+          .textAlign(TextAlign.End)
+          .onClick(() => this.selectDateTime(true))
+      }
+      .width('100%')
+      .padding({ top: 10, bottom: 10 })
+      .border({ width: { bottom: 1 }, color: '#EEE' })
+
+      Row() {
+        Text('结束时间')
+          .width(80)
+        Text(this.formatDate(this.endTime))
+          .fontSize(16)
+          .fontColor('#1698CE')
+          .layoutWeight(1)
+          .textAlign(TextAlign.End)
+          .onClick(() => this.selectDateTime(false))
+      }
+      .width('100%')
+      .padding({ top: 10, bottom: 10 })
+      .border({ width: { bottom: 1 }, color: '#EEE' })
+
+      Row() {
+        Button('取消')
+          .onClick(() => {
+            this.controller.close()
+          })
+          .backgroundColor(Color.Gray)
+          .margin({ right: 20 })
+        
+        Button('确认预约')
+          .onClick(() => {
+            this.onConfirm(this.startTime, this.endTime)
+            this.controller.close()
+          })
+          .backgroundColor('#1698CE')
+      }
+      .width('100%')
+      .justifyContent(FlexAlign.Center)
+      .margin({ top: 20 })
+    }
+    .padding(20)
+    .backgroundColor(Color.White)
+    .borderRadius(10)
+    .width('90%')
+  }
+}
+
 @Entry
 @Component
 export struct FacilityDetail {
   @State facility: Facility | null = null;
-  @State startTime: Date = new Date();
-  @State endTime: Date = new Date(new Date().getTime() + 60 * 60 * 1000); // 默认结束时间为当前时间后一小时
   @State myReservations: Array<Reservation> = [];
   @State ratings: Array<FacilityRating> = [];
   @State activities: Array<Activity> = [];
+  @State joinedActivityIds: number[] = [];
+  
+  reservationDialogController: CustomDialogController | null = null;
 
   // 页面加载时获取传递的参数
   aboutToAppear() {
@@ -25,6 +120,7 @@ export struct FacilityDetail {
       this.loadMyReservations();
       this.loadRatings();
       this.loadActivities();
+      this.loadJoinedActivities();
     }
   }
 
@@ -33,6 +129,7 @@ export struct FacilityDetail {
       this.loadMyReservations();
       this.loadRatings();
       this.loadActivities();
+      this.loadJoinedActivities();
     }
   }
 
@@ -61,18 +158,27 @@ export struct FacilityDetail {
     }
   }
 
-getFacilityImage(imageName: string | null): Resource {
-  if (imageName === 'gym') {
-    return $r('app.media.gym'); // 确保 media 目录下有 gym.png
+  loadJoinedActivities() {
+    const userId = AppStorage.get<number>('currentUserId');
+    if (userId) {
+      DBTools.queryJoinedActivityIds(userId).then((ids) => {
+        this.joinedActivityIds = ids;
+      });
+    }
   }
-  if (imageName === 'soccer') {
-    return $r('app.media.soccer'); // 确保 media 目录下有 soccer.png
+
+  getFacilityImage(imageName: string | null): Resource {
+    if (imageName === 'gym') {
+      return $r('app.media.gym'); // 确保 media 目录下有 gym.png
+    }
+    if (imageName === 'soccer') {
+      return $r('app.media.soccer'); // 确保 media 目录下有 soccer.png
+    }
+    if (imageName === 'pool') {
+      return $r('app.media.pool'); // 确保 media 目录下有 pool.png
+    }
+    return $r('app.media.background'); // 默认图片
   }
-  if (imageName === 'pool') {
-    return $r('app.media.pool'); // 确保 media 目录下有 pool.png
-  }
-  return $r('app.media.background'); // 默认图片
-}
 
   handleJoinActivity(activity: Activity) {
     const userId = AppStorage.get<number>('currentUserId');
@@ -90,6 +196,7 @@ getFacilityImage(imageName: string | null): Resource {
       DBTools.joinActivity(activity.activity_id, userId).then((rowId) => {
         if (rowId > 0) {
           this.showToast('报名成功');
+          this.loadJoinedActivities(); // 刷新报名状态
         } else {
           this.showToast('报名失败');
         }
@@ -112,7 +219,6 @@ getFacilityImage(imageName: string | null): Resource {
       return '已完成';
     }
   }
-
   getStatusColor(status: string): string {
     switch (status) {
       case '已预约': return '#FAAD14'; // Orange
@@ -123,7 +229,11 @@ getFacilityImage(imageName: string | null): Resource {
     }
   }
 
-  handleReservation() {
+  formatDate(date: Date): string {
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  handleReservation(startTime: number, endTime: number) {
     if (!this.facility || !this.facility.facility_id) return;
 
     // 修改：从 AppStorage 获取全局存储的用户ID
@@ -132,9 +242,6 @@ getFacilityImage(imageName: string | null): Resource {
       this.showToast('用户未登录，请先登录');
       return;
     }
-
-    const startTime = this.startTime.getTime();
-    const endTime = this.endTime.getTime();
 
     if (startTime >= endTime) {
       this.showToast('结束时间必须晚于开始时间');
@@ -174,36 +281,21 @@ getFacilityImage(imageName: string | null): Resource {
     });
   }
 
+  openReservationDialog() {
+    this.reservationDialogController = new CustomDialogController({
+      builder: ReservationDialog({
+        onConfirm: (start, end) => {
+          this.handleReservation(start.getTime(), end.getTime());
+        }
+      }),
+      autoCancel: true,
+      customStyle: true
+    })
+    this.reservationDialogController.open()
+  }
+
   showToast(message: string) {
     promptAction.showToast({ message: message });
-  }
-
-  // 格式化日期显示
-  formatDate(date: Date): string {
-    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  }
-
-  // 选择日期和时间
-  selectDateTime(isStart: boolean) {
-    DatePickerDialog.show({
-      start: new Date(),
-      end: new Date("2030-12-31"),
-      selected: isStart ? this.startTime : this.endTime,
-      onAccept: (value: DatePickerResult) => {
-        TimePickerDialog.show({
-          selected: isStart ? this.startTime : this.endTime,
-          useMilitaryTime: true,
-          onAccept: (timeValue: TimePickerResult) => {
-            const newDate = new Date(value.year!, value.month!, value.day!, timeValue.hour, timeValue.minute);
-            if (isStart) {
-              this.startTime = newDate;
-            } else {
-              this.endTime = newDate;
-            }
-          }
-        })
-      }
-    })
   }
 
   build() {
@@ -323,11 +415,19 @@ getFacilityImage(imageName: string | null): Resource {
                               .fontWeight(FontWeight.Bold)
                             Blank()
                             if (item.status === 'open') {
+                              if (this.joinedActivityIds.includes(item.activity_id)) {
+                                Button('已报名')
+                                  .fontSize(12)
+                                  .height(24)
+                                  .backgroundColor(Color.Gray)
+                                  .enabled(false)
+                              } else {
                                 Button('报名')
-                                .fontSize(12)
-                                .height(24)
-                                .backgroundColor('#52C41A')
-                                .onClick(() => this.handleJoinActivity(item))
+                                  .fontSize(12)
+                                  .height(24)
+                                  .backgroundColor('#52C41A')
+                                  .onClick(() => this.handleJoinActivity(item))
+                              }
                             } else {
                                 Text(item.status)
                                 .fontSize(12)
@@ -336,6 +436,11 @@ getFacilityImage(imageName: string | null): Resource {
                           }
                           .width('100%')
                           .margin({ bottom: 5 })
+
+                          Text(`👤 发起人: ${item.organizer_name || '未知'}`)
+                            .fontSize(14)
+                            .fontColor(Color.Gray)
+                            .margin({ bottom: 5 })
 
                           Text(`🕒 时间: ${item.start_time}`)
                             .fontSize(14)
@@ -365,13 +470,24 @@ getFacilityImage(imageName: string | null): Resource {
               .margin({ bottom: 15 })
 
               // 新增：我的预约记录展示
-              if (this.myReservations.length > 0) {
-                Column() {
+              Column() {
+                Row() {
                   Text('📋 我的预约记录')
                     .fontSize(18)
                     .fontWeight(FontWeight.Bold)
-                    .margin({ bottom: 10 })
-                  
+                  Blank()
+                  Button('立即预约')
+                    .fontSize(12)
+                    .height(28)
+                    .backgroundColor('#1698CE')
+                    .onClick(() => {
+                      this.openReservationDialog();
+                    })
+                }
+                .width('100%')
+                .margin({ bottom: 10 })
+
+                if (this.myReservations.length > 0) {
                   List({ space: 10 }) {
                     ForEach(this.myReservations, (item: Reservation) => {
                       ListItem() {
@@ -393,14 +509,19 @@ getFacilityImage(imageName: string | null): Resource {
                     })
                   }
                   .height(this.myReservations.length > 3 ? 150 : 'auto') // 限制高度，避免占用过多空间
+                } else {
+                  Text('暂无预约记录')
+                    .fontSize(14)
+                    .fontColor(Color.Gray)
+                    .margin({ top: 10, bottom: 10 })
                 }
-                .width('100%')
-                .padding(20)
-                .backgroundColor(Color.White)
-                .borderRadius(10)
-                .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
-                .margin({ bottom: 15 })
               }
+              .width('100%')
+              .padding(20)
+              .backgroundColor(Color.White)
+              .borderRadius(10)
+              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
+              .margin({ bottom: 15 })
 
               // 新增：用户评价展示
               Column() {
@@ -453,46 +574,6 @@ getFacilityImage(imageName: string | null): Resource {
               .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .margin({ bottom: 15 })
 
-              // 3. 预约时间选择
-              Column() {
-                Text('⏰ 预约时间')
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .margin({ bottom: 15 })
-
-                Row() {
-                  Text('开始时间')
-                    .width(80)
-                  Text(this.formatDate(this.startTime))
-                    .fontSize(16)
-                    .fontColor('#1698CE')
-                    .layoutWeight(1)
-                    .textAlign(TextAlign.End)
-                    .onClick(() => this.selectDateTime(true))
-                }
-                .width('100%')
-                .padding({ top: 10, bottom: 10 })
-                .border({ width: { bottom: 1 }, color: '#EEE' })
-
-                Row() {
-                  Text('结束时间')
-                    .width(80)
-                  Text(this.formatDate(this.endTime))
-                    .fontSize(16)
-                    .fontColor('#1698CE')
-                    .layoutWeight(1)
-                    .textAlign(TextAlign.End)
-                    .onClick(() => this.selectDateTime(false))
-                }
-                .width('100%')
-                .padding({ top: 10, bottom: 10 })
-                .border({ width: { bottom: 1 }, color: '#EEE' })
-              }
-              .width('100%')
-              .padding(20)
-              .backgroundColor(Color.White)
-              .borderRadius(10)
-              .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
             }
             .width('100%')
             .padding({ left: 15, right: 15 })
@@ -500,19 +581,6 @@ getFacilityImage(imageName: string | null): Resource {
           .layoutWeight(1)
           .scrollBar(BarState.Auto)
           .align(Alignment.Top)
-
-          // 4. 底部按钮
-          Button('立即预约')
-            .width('90%')
-            .height(50)
-            .fontSize(18)
-            .fontWeight(FontWeight.Bold)
-            .backgroundColor('#1698CE')
-            .shadow({ radius: 5, color: '#4F1698CE', offsetY: 3 })
-            .margin({ top: 10, bottom: 20 })
-            .onClick(() => {
-              this.handleReservation();
-            })
         }
         .width('100%')
         .height('100%')
