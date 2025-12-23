@@ -571,3 +571,65 @@ export default class DBTools {
       JOIN activity_participants ap ON a.activity_id = ap.activity_id
       LEFT JOIN facilities f ON a.facility_id = f.facility_id
       LEFT JOIN users u ON a.organizer_id = u.user_id
+      WHERE ap.user_id = ?
+      ORDER BY a.start_time DESC
+    `;
+    return new Promise<Array<Activity>>((resolve, reject) => {
+      DBTools.getStore().querySql(sql, [userId]).then((rs) => {
+        let activities = Array<Activity>();
+        while (rs.goToNextRow()) {
+          let activity = new Activity(
+            rs.getLong(rs.getColumnIndex('activity_id')),
+            rs.getLong(rs.getColumnIndex('facility_id')),
+            rs.getLong(rs.getColumnIndex('organizer_id')),
+            rs.getString(rs.getColumnIndex('title')),
+            rs.getString(rs.getColumnIndex('description')),
+            rs.getString(rs.getColumnIndex('start_time')),
+            rs.getString(rs.getColumnIndex('end_time')),
+            rs.getString(rs.getColumnIndex('status')),
+            rs.getString(rs.getColumnIndex('created_at')),
+            rs.getString(rs.getColumnIndex('facility_name')),
+            rs.getString(rs.getColumnIndex('organizer_name')),
+            rs.getLong(rs.getColumnIndex('participant_count'))
+          )
+          activities.push(activity);
+        }
+        rs.close();
+        resolve(activities);
+      }).catch((err: BusinessError) => {
+        reject(err);
+      })
+    })
+  }
+
+  // 27. 查询活动的参与者
+  static queryActivityParticipants(activityId: number): Promise<Array<User>> {
+    const sql = `
+      SELECT u.* 
+      FROM users u
+      JOIN activity_participants ap ON u.user_id = ap.user_id
+      WHERE ap.activity_id = ?
+    `;
+    return new Promise<Array<User>>((resolve, reject) => {
+      DBTools.getStore().querySql(sql, [activityId]).then((rs) => {
+        let users = Array<User>();
+        while (rs.goToNextRow()) {
+          let user = new User(
+            rs.getLong(rs.getColumnIndex('user_id')),
+            rs.getString(rs.getColumnIndex('username')),
+            rs.getString(rs.getColumnIndex('password_hash')),
+            rs.getString(rs.getColumnIndex('full_name')),
+            rs.getString(rs.getColumnIndex('phone')),
+            rs.getString(rs.getColumnIndex('email')),
+            rs.getString(rs.getColumnIndex('created_at'))
+          )
+          users.push(user);
+        }
+        rs.close();
+        resolve(users);
+      }).catch((err: BusinessError) => {
+        reject(err);
+      })
+    })
+  }
+}

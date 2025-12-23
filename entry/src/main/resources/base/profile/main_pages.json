@@ -7,6 +7,7 @@
     "pages/MyReservations",
     "pages/MyRatings",
     "pages/UserInfoEdit",
-    "pages/ActivityCreate"
+    "pages/ActivityCreate",
+    "pages/MyActivities"
   ]
 }

@@ -460,6 +460,26 @@ getFacilityImage(imageName: string | null): Resource {
                   router.pushUrl({ url: 'pages/MyReservations' });
                 })
               }
+
+              ListItem() {
+                Row() {
+                  Text('🏃')
+                    .fontSize(20)
+                    .margin({ right: 10 })
+                  Text('我的活动')
+                    .fontSize(16)
+                  Blank()
+                  Text('>')
+                    .fontColor(Color.Gray)
+                }
+                .width('100%')
+                .padding(15)
+                .backgroundColor(Color.White)
+                .margin({ top: 1 })
+                .onClick(() => {
+                  router.pushUrl({ url: 'pages/MyActivities' });
+                })
+              }
               
               ListItem() {
                 Row() {
