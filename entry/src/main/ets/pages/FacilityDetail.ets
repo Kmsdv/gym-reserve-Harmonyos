@@ -5,6 +5,7 @@ import DBTools from '../utils/DBTools';
 import Facility from '../model/Facility'; // 导入 Facility 模型
 import Reservation from '../model/Reservation';
 import FacilityRating from '../model/FacilityRating';
+import Activity from '../model/Activity';
 
 @Entry
 @Component
@@ -14,6 +15,7 @@ export struct FacilityDetail {
   @State endTime: Date = new Date(new Date().getTime() + 60 * 60 * 1000); // 默认结束时间为当前时间后一小时
   @State myReservations: Array<Reservation> = [];
   @State ratings: Array<FacilityRating> = [];
+  @State activities: Array<Activity> = [];
 
   // 页面加载时获取传递的参数
   aboutToAppear() {
@@ -22,6 +24,15 @@ export struct FacilityDetail {
       this.facility = params['facility'] as Facility;
       this.loadMyReservations();
       this.loadRatings();
+      this.loadActivities();
+    }
+  }
+
+  onPageShow() {
+    if (this.facility) {
+      this.loadMyReservations();
+      this.loadRatings();
+      this.loadActivities();
     }
   }
 
@@ -40,6 +51,37 @@ export struct FacilityDetail {
         this.ratings = data;
       });
     }
+  }
+
+  loadActivities() {
+    if (this.facility && this.facility.facility_id) {
+      DBTools.queryActivitiesByFacilityId(this.facility.facility_id).then((data) => {
+        this.activities = data;
+      });
+    }
+  }
+
+  handleJoinActivity(activity: Activity) {
+    const userId = AppStorage.get<number>('currentUserId');
+    if (!userId) {
+      this.showToast('请先登录');
+      return;
+    }
+    
+    DBTools.checkActivityParticipation(activity.activity_id, userId).then((isJoined) => {
+      if (isJoined) {
+        this.showToast('您已报名参加该活动');
+        return;
+      }
+      
+      DBTools.joinActivity(activity.activity_id, userId).then((rowId) => {
+        if (rowId > 0) {
+          this.showToast('报名成功');
+        } else {
+          this.showToast('报名失败');
+        }
+      });
+    });
   }
 
   getReservationStatus(item: Reservation): string {
@@ -213,6 +255,86 @@ export struct FacilityDetail {
               .borderRadius(10)
               .margin({ top: 15, bottom: 15 })
               .alignItems(HorizontalAlign.Start)
+
+              // 新增：设施活动展示
+              Column() {
+                Row() {
+                  Text('热门活动')
+                    .fontSize(18)
+                    .fontWeight(FontWeight.Bold)
+                  Blank()
+                  Button('+ 发起活动')
+                    .fontSize(12)
+                    .height(28)
+                    .backgroundColor('#1698CE')
+                    .onClick(() => {
+                      router.pushUrl({
+                        url: 'pages/ActivityCreate',
+                        params: {
+                          facility: this.facility
+                        }
+                      })
+                    })
+                }
+                .width('100%')
+                .margin({ bottom: 10 })
+                
+                if (this.activities.length === 0) {
+                  Text('暂无活动，快来发起第一个活动吧！')
+                    .fontSize(14)
+                    .fontColor(Color.Gray)
+                    .margin({ top: 10, bottom: 10 })
+                    .width('100%')
+                    .textAlign(TextAlign.Center)
+                } else {
+                  List({ space: 10 }) {
+                    ForEach(this.activities, (item: Activity) => {
+                      ListItem() {
+                        Column() {
+                          Row() {
+                            Text(item.title)
+                              .fontSize(16)
+                              .fontWeight(FontWeight.Bold)
+                            Blank()
+                            if (item.status === 'open') {
+                                Button('报名')
+                                .fontSize(12)
+                                .height(24)
+                                .onClick(() => this.handleJoinActivity(item))
+                            } else {
+                                Text(item.status)
+                                .fontSize(12)
+                                .fontColor(Color.Gray)
+                            }
+                          }
+                          .width('100%')
+                          .margin({ bottom: 5 })
+
+                          Text(`时间: ${item.start_time}`)
+                            .fontSize(14)
+                            .fontColor(Color.Gray)
+                            .margin({ bottom: 5 })
+                            
+                          Text(item.description)
+                            .fontSize(14)
+                            .fontColor('#333')
+                            .maxLines(2)
+                            .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        }
+                        .width('100%')
+                        .padding(10)
+                        .backgroundColor('#F9F9F9')
+                        .borderRadius(5)
+                      }
+                    })
+                  }
+                }
+              }
+              .width('100%')
+              .padding(20)
+              .backgroundColor(Color.White)
+              .borderRadius(10)
+              .margin({ bottom: 15 })
 
               // 新增：我的预约记录展示
               if (this.myReservations.length > 0) {

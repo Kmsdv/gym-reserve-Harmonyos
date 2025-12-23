@@ -2,6 +2,7 @@ import { router } from '@kit.ArkUI';
 import DBTools from '../utils/DBTools';
 import Facility from '../model/Facility';
 import User from '../model/User';
+import Activity from '../model/Activity';
 
 @Entry
 @Component
@@ -10,6 +11,7 @@ struct Success {
   @State facilities: Array<Facility> = [];
   @State currentUser: User | null = null;
   @State recommendations: Array<Facility> = [];
+  @State recommendedActivities: Array<Activity> = [];
   @State recommendationTitle: string = '今日推荐';
 
   private controller: TabsController = new TabsController();
@@ -29,6 +31,13 @@ struct Success {
   }
 
   async loadRecommendations() {
+    // 加载活动推荐
+    DBTools.queryActivities().then((data) => {
+      this.recommendedActivities = data.slice(0, 5); // 推荐前5个活动
+    }).catch((err: Error) => {
+      console.error('Failed to load activity recommendations:', err.message);
+    });
+
     const userId = AppStorage.get<number>('currentUserId');
     if (!userId) {
       this.loadDefaultRecommendations();
@@ -127,12 +136,16 @@ struct Success {
         // 1. 推荐页面
         TabContent() {
           Column() {
-            Text(this.recommendationTitle)
-              .fontSize(24)
-              .fontWeight(FontWeight.Bold)
-              .margin({ top: 20, bottom: 20 })
-            
             List({ space: 15 }) {
+              // 推荐设施标题
+              ListItem() {
+                Text(this.recommendationTitle)
+                  .fontSize(24)
+                  .fontWeight(FontWeight.Bold)
+                  .margin({ top: 20, bottom: 5, left: 20 })
+              }
+
+              // 推荐设施列表
               ForEach(this.recommendations, (item: Facility) => {
                 ListItem() {
                   Column() {
@@ -186,6 +199,84 @@ struct Success {
                   })
                 }
               })
+
+              // 推荐活动标题
+              if (this.recommendedActivities.length > 0) {
+                ListItem() {
+                  Text('热门活动')
+                    .fontSize(24)
+                    .fontWeight(FontWeight.Bold)
+                    .margin({ top: 20, bottom: 5, left: 20 })
+                }
+
+                // 推荐活动列表
+                ForEach(this.recommendedActivities, (item: Activity) => {
+                  ListItem() {
+                    Column() {
+                      Row() {
+                        Text(item.title)
+                          .fontSize(18)
+                          .fontWeight(FontWeight.Bold)
+                        Blank()
+                        Text(item.status === 'open' ? '报名中' : item.status)
+                          .fontSize(12)
+                          .fontColor(Color.White)
+                          .backgroundColor(item.status === 'open' ? '#52C41A' : '#999')
+                          .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+                          .borderRadius(10)
+                      }
+                      .width('100%')
+                      .margin({ bottom: 8 })
+
+                      Row() {
+                        Text('地点: ' + (item.facility_name || '未知地点'))
+                          .fontSize(14)
+                          .fontColor(Color.Gray)
+                      }
+                      .width('100%')
+                      .margin({ bottom: 5 })
+
+                      Row() {
+                        Text('时间: ' + item.start_time)
+                          .fontSize(14)
+                          .fontColor(Color.Gray)
+                      }
+                      .width('100%')
+                      .margin({ bottom: 5 })
+
+                      Text(item.description)
+                        .fontSize(14)
+                        .fontColor('#666')
+                        .maxLines(2)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .width('100%')
+                    }
+                    .width('90%')
+                    .margin({ left: '5%', right: '5%' })
+                    .padding(15)
+                    .backgroundColor(Color.White)
+                    .borderRadius(10)
+                    .shadow({ radius: 5, color: '#1F000000', offsetY: 2 })
+                    .onClick(() => {
+                      // 尝试跳转到对应设施详情
+                      const facility = this.facilities.find(f => f.facility_id === item.facility_id);
+                      if (facility) {
+                        router.pushUrl({
+                          url: 'pages/FacilityDetail',
+                          params: {
+                            facility: facility
+                          }
+                        })
+                      }
+                    })
+                  }
+                })
+              }
+              
+              // 底部留白
+              ListItem() {
+                Row().height(20)
+              }
             }
             .width('100%')
             .layoutWeight(1)
