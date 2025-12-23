@@ -21,7 +21,7 @@ struct Index {
         Text('🏟️')
           .fontSize(80)
           .margin({ bottom: 20 })
-        Text('体育场馆预约')
+        Text('GymLink')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
           .fontColor('#333')
