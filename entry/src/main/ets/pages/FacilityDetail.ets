@@ -535,6 +535,8 @@ export struct FacilityDetail {
                     .fontSize(14)
                     .fontColor(Color.Gray)
                     .margin({ top: 10, bottom: 10 })
+                    .width('100%')
+                    .textAlign(TextAlign.Center)
                 } else {
                   List({ space: 10 }) {
                     ForEach(this.ratings, (item: FacilityRating) => {
@@ -573,6 +575,7 @@ export struct FacilityDetail {
               .borderRadius(10)
               .shadow({ radius: 2, color: '#1F000000', offsetY: 1 })
               .margin({ bottom: 15 })
+              .alignItems(HorizontalAlign.Start)
 
             }
             .width('100%')
