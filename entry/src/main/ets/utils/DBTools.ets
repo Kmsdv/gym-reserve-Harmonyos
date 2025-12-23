@@ -522,4 +522,52 @@ export default class DBTools {
       })
     })
   }
-}
+
+  // 25. 查询用户创建的活动
+  static queryActivitiesByOrganizer(userId: number): Promise<Array<Activity>> {
+    const sql = `
+      SELECT a.*, f.facility_name, u.full_name as organizer_name,
+      (SELECT COUNT(*) FROM activity_participants ap WHERE ap.activity_id = a.activity_id) as participant_count
+      FROM activities a
+      LEFT JOIN facilities f ON a.facility_id = f.facility_id
+      LEFT JOIN users u ON a.organizer_id = u.user_id
+      WHERE a.organizer_id = ?
+      ORDER BY a.start_time DESC
+    `;
+    return new Promise<Array<Activity>>((resolve, reject) => {
+      DBTools.getStore().querySql(sql, [userId]).then((rs) => {
+        let activities = Array<Activity>();
+        while (rs.goToNextRow()) {
+          let activity = new Activity(
+            rs.getLong(rs.getColumnIndex('activity_id')),
+            rs.getLong(rs.getColumnIndex('facility_id')),
+            rs.getLong(rs.getColumnIndex('organizer_id')),
+            rs.getString(rs.getColumnIndex('title')),
+            rs.getString(rs.getColumnIndex('description')),
+            rs.getString(rs.getColumnIndex('start_time')),
+            rs.getString(rs.getColumnIndex('end_time')),
+            rs.getString(rs.getColumnIndex('status')),
+            rs.getString(rs.getColumnIndex('created_at')),
+            rs.getString(rs.getColumnIndex('facility_name')),
+            rs.getString(rs.getColumnIndex('organizer_name')),
+            rs.getLong(rs.getColumnIndex('participant_count'))
+          )
+          activities.push(activity);
+        }
+        rs.close();
+        resolve(activities);
+      }).catch((err: BusinessError) => {
+        reject(err);
+      })
+    })
+  }
+
+  // 26. 查询用户参与的活动
+  static queryJoinedActivities(userId: number): Promise<Array<Activity>> {
+    const sql = `
+      SELECT a.*, f.facility_name, u.full_name as organizer_name,
+      (SELECT COUNT(*) FROM activity_participants ap WHERE ap.activity_id = a.activity_id) as participant_count
+      FROM activities a
+      JOIN activity_participants ap ON a.activity_id = ap.activity_id
+      LEFT JOIN facilities f ON a.facility_id = f.facility_id
+      LEFT JOIN users u ON a.organizer_id = u.user_id

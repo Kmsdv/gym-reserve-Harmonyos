@@ -278,6 +278,17 @@ getFacilityImage(imageName: string | null): Resource {
                       .width('100%')
                       .margin({ bottom: 5 })
 
+                      Row() {
+                        Text('👥')
+                          .fontSize(14)
+                          .margin({ right: 5 })
+                        Text(`已报名: ${item.participant_count || 0}人`)
+                          .fontSize(14)
+                          .fontColor(Color.Gray)
+                      }
+                      .width('100%')
+                      .margin({ bottom: 5 })
+
                       Text(item.description)
                         .fontSize(14)
                         .fontColor('#666')

@@ -442,6 +442,11 @@ export struct FacilityDetail {
                             .fontColor(Color.Gray)
                             .margin({ bottom: 5 })
 
+                          Text(`👥 已报名: ${item.participant_count || 0}人`)
+                            .fontSize(14)
+                            .fontColor(Color.Gray)
+                            .margin({ bottom: 5 })
+
                           Text(`🕒 时间: ${item.start_time}`)
                             .fontSize(14)
                             .fontColor(Color.Gray)
